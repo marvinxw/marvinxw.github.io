@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Hive的执行过程 | Marvin 博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Hive的执行过程</h1><a id="logo" href="/.">Marvin 博客</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Hive的执行过程</h1><div class="post-meta">Jun 17, 2019<span> | </span><span class="category"><a href="/categories/bigdata/">bigdata</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 280</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 1</span><span class="post-meta-item-text"> 分钟</span></span></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hive的结构"><span class="toc-number">2.</span> <span class="toc-text">Hive的结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hive的执行过程"><span class="toc-number">3.</span> <span class="toc-text">Hive的执行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>基于HDP的解决方案搭建，版本2.6.3</li>
+</ul>
+<p>Hive版本: 1.2.1000<br>HDFS版本: 2.7.3<br>YARN版本: 2.7.3<br>Tez版本: 0.7.0</p>
+<h2 id="Hive的结构"><a href="#Hive的结构" class="headerlink" title="Hive的结构"></a>Hive的结构</h2><ul>
+<li>没有在官网找到详细的架构图，放以下2个图，互相参考着看</li>
+</ul>
+<p><img src="/2019/06/17/Hive/Hive的执行过程/Hive-architecture.png" alt="Hive结构图"><br><code>图片来自: Tom White. Hadoop: The Definitive Guide</code></p>
+<p><img src="/2019/06/17/Hive/Hive的执行过程/Hive-architecture-2.png" alt="Hive结构图"></p>
+<p>Hive主要包含服务端、客户端</p>
+<p><strong>1.客户端</strong></p>
+<ul>
+<li><strong>CLI</strong></li>
+</ul>
+<p>CLI(Command Line Interface): 通过命令行访问</p>
+<ul>
+<li><strong>Thrift Client</strong></li>
+</ul>
+<p>支持Thrift方式连接Hive服务</p>
+<ul>
+<li><strong>HiveWebInterface</strong></li>
+</ul>
+<p>通过浏览器访问Hive</p>
+<p><strong>2.服务端</strong></p>
+<ul>
+<li><strong>Hive Server： Thrift服务</strong></li>
+</ul>
+<p>thrift是facebook开发的一个软件框架，用来进行可扩展且跨语言的服务的开发，hive集成了该服务，能让不同的编程语言调用hive的接口。</p>
+<ul>
+<li><strong>Driver</strong></li>
+</ul>
+<p>包括Complier、Optimizer和Executor，作用是将HQL解析、编译优化、生产执行计划，调用底层的计算引擎(mr, tez)。</p>
+<ul>
+<li><strong>Metastore</strong></li>
+</ul>
+<p>存储数据的元信息。就是表的名字、表的列、表的分区、表的属性、表的数据所在目录。</p>
+<h2 id="Hive的执行过程"><a href="#Hive的执行过程" class="headerlink" title="Hive的执行过程"></a>Hive的执行过程</h2><p><img src="/2019/06/17/Hive/Hive的执行过程/system_architecture.png" alt="Hive的执行过程"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/Design#Design-HiveArchitecture" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/Hive/Design#Design-HiveArchitecture</a></li>
+<li><a href="https://www.cnblogs.com/sharpxiajun/archive/2013/06/02/3114180.html" target="_blank" rel="noopener">https://www.cnblogs.com/sharpxiajun/archive/2013/06/02/3114180.html</a></li>
+</ol>
+</div><div class="tags"><a href="/tags/Hive/">Hive</a></div><div class="post-nav"><a class="next" href="/2019/05/26/ETL/ETL/">ETL杂记</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="https://marvinxw.github.io"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/bigdata/">bigdata</a><span class="category-list-count">3</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/ETL/" style="font-size: 15px;">ETL</a> <a href="/tags/Hive/" style="font-size: 15px;">Hive</a> <a href="/tags/NiFi/" style="font-size: 15px;">NiFi</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/06/17/Hive/Hive的执行过程/">Hive的执行过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/26/ETL/ETL/">ETL杂记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/26/NiFi/NiFi教程/">NiFi教程</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">Marvin 博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
