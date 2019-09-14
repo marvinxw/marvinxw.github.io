@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.8.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>开启Kerberos后Kettle连接Hive | Marvin 博客</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/normalize/8.0.1/normalize.min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//lib.baomitu.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//lib.baomitu.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//lib.baomitu.com/jquery/3.4.0/jquery.min.js"></script><link rel="icon" mask sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">开启Kerberos后Kettle连接Hive</h1><a id="logo" href="/.">Marvin 博客</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">开启Kerberos后Kettle连接Hive</h1><div class="post-meta">May 6, 2019<span> | </span><span class="category"><a href="/categories/bigdata/">bigdata</a></span><script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> 阅读</span></span><span class="post-time"><span class="post-meta-item-text"> | </span><span class="post-meta-item-icon"><i class="fa fa-keyboard-o"></i><span class="post-count"> 651</span><span class="post-meta-item-text"> 字</span></span></span><span class="post-time"> | <span class="post-meta-item-icon"><i class="fa fa-hourglass-half"></i><span class="post-count"> 2</span><span class="post-meta-item-text"> 分钟</span></span></span></div><div class="clear"><div class="toc-article" id="toc"><div class="toc-title">文章目录</div><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备工作"><span class="toc-number">2.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">3.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kettle集成Hive"><span class="toc-number">4.</span> <span class="toc-text">Kettle集成Hive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#修改Spoon-bat"><span class="toc-number">4.1.</span> <span class="toc-text">修改Spoon.bat</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#增加XML文件"><span class="toc-number">4.2.</span> <span class="toc-text">增加XML文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改jar文件"><span class="toc-number">4.3.</span> <span class="toc-text">修改jar文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#连接Hive"><span class="toc-number">4.4.</span> <span class="toc-text">连接Hive</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用"><span class="toc-number">5.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>HDP机群开启了Kerberos</li>
+<li>如何使用社区版的Kettle连接Hive2</li>
+</ul>
+<p>Kettle版本: pdi-ce-8.2.0.0-342<br>HDP版本: 2.6.3.0-235<br>操作系统: win7、64位</p>
+<p>1.<a href="https://help.pentaho.com/Documentation/8.1/Setup/Configuration/Hadoop_Clusters/Hortonworks" target="_blank" rel="noopener">Kettle官网</a>是有文档说明如何实现Kerberos集成Kettle<br>但是社区版找不到类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">org.pentaho.hadoop.shim.common.authorization.EEAuthActivator</span><br></pre></td></tr></table></figure>
+
+<p>2.参考Kettle的官网文档配置，你会遇到这个报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.lang.RuntimeException: Illegal Hadoop Version: Unknown (expected A.B.* format)</span><br></pre></td></tr></table></figure>
+
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ul>
+<li>下载Heimdal-AMD64-full-7-4-0-40.msi</li>
+<li>下载winutils.exe</li>
+<li>下载HDP集群的keytab，我这里使用的是Hive的principal和keytab，也可以自己创建一个新的principal</li>
+<li>下载<a href="https://github.com/timveil/hive-jdbc-uber-jar" target="_blank" rel="noopener">hive-jdbc-uber-2.6.3.0-235.jar</a></li>
+</ul>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><ol>
+<li><p>将 krb5.ini 文件放置在 C:\krb5 目录下</p>
+</li>
+<li><p>系统环境变量配置: 我的电脑 右键 -&gt; 属性 -&gt; 高级系统设置  -&gt; 高级 -&gt; 环境变量 -&gt; 系统变量 -&gt; 新建，新增系统变量 KRB5_CONFIG ，值为 C:\krb5\krb5.ini</p>
+</li>
+<li><p>系统环境变量配置: 我的电脑 右键 -&gt; 属性 -&gt; 高级系统设置 -&gt; 高级 -&gt; 环境变量 -&gt; 系统变量 -&gt; 新建，新增系统变量 KRB5CCNAME，值为 C:\krb5cache.kcache</p>
+</li>
+<li><p>创建 %USERPROFILE%\krb5temp 目录，作为认证后的缓存目录</p>
+</li>
+<li><p>用户环境变量配置: 我的电脑 右键 -&gt; 属性 -&gt; 高级系统设置 -&gt; 高级 -&gt; 环境变量 -&gt; 用户变量 -&gt; 新建，新增系统变量 KRB5CCNAME，值为 %USERPROFILE%\krb5temp\krb5cache.kcache</p>
+</li>
+<li><p>将 winutils.exe 拷贝到 C:\winutils\bin</p>
+</li>
+</ol>
+<h2 id="Kettle集成Hive"><a href="#Kettle集成Hive" class="headerlink" title="Kettle集成Hive"></a>Kettle集成Hive</h2><ul>
+<li>其实就是启动Kettle的时候执行一下kinit</li>
+</ul>
+<h3 id="修改Spoon-bat"><a href="#修改Spoon-bat" class="headerlink" title="修改Spoon.bat"></a>修改Spoon.bat</h3><p>1.第41行增加</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">:: **************************************************</span><br><span class="line">:: ** Kerberos                                     **</span><br><span class="line">:: **************************************************</span><br><span class="line">kinit -kt keytab目录 hive的principal</span><br><span class="line">klist</span><br></pre></td></tr></table></figure>
+
+<p>2.第125行修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set OPT 最后面 加入以下配置</span><br><span class="line"></span><br><span class="line">&quot;-Djava.security.krb5.conf=C:\krb5\krb5.ini&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="增加XML文件"><a href="#增加XML文件" class="headerlink" title="增加XML文件"></a>增加XML文件</h3><p>使用集群的hive.xml替换</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data-integration/plugins/pentaho-big-data-plugin/hadoop-configurations/hdp26</span><br></pre></td></tr></table></figure>
+
+<p>目录下的hive.xml文件</p>
+<h3 id="修改jar文件"><a href="#修改jar文件" class="headerlink" title="修改jar文件"></a>修改jar文件</h3><ul>
+<li>目录: </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data-integration/plugins/pentaho-big-data-plugin/hadoop-configurations/hdp26/lib/</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除</li>
+</ul>
+<img src="/2019/05/06/Kettle/开启Kerberos后Kettle连接Hive/删除的jar.png" alt="删除的jar.png" width="430 px" height="310 px">
+
+<ul>
+<li>新增</li>
+</ul>
+<p>hive-jdbc-uber-2.6.3.0-235.jar</p>
+<h3 id="连接Hive"><a href="#连接Hive" class="headerlink" title="连接Hive"></a>连接Hive</h3><p>1.<br>选择连接类型: <code>Hadoop Hive 2</code><br>端口号: 10000<br>不需要用户名、密码</p>
+<p>2.<br>数据库连接 &gt; 选项</p>
+<p>添加以下命名参数<br>principal: hive的principal</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><ol>
+<li>以上步骤配置好后，就能通过Kettle写数据到Hive了</li>
+<li>但是只支持单条写入，性能很差</li>
+<li>读取性能还可以</li>
+</ol>
+<ul>
+<li>关于只支持单条</li>
+</ul>
+<ol>
+<li>可以自己实现insert into values </li>
+<li>可以写成文件传到HDFS，生成对应格式的hive表</li>
+<li>可以扩展Kettle的功能(有点麻烦，性价比不高)</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://help.pentaho.com/Documentation/8.1/Setup/Administration/Big_Data_Security/Set_Up_Kerberos_for_Pentaho" target="_blank" rel="noopener">https://help.pentaho.com/Documentation/8.1/Setup/Administration/Big_Data_Security/Set_Up_Kerberos_for_Pentaho</a></li>
+<li><a href="https://help.pentaho.com/Documentation/8.1/Setup/Configuration/Hadoop_Clusters/Hortonworks" target="_blank" rel="noopener">https://help.pentaho.com/Documentation/8.1/Setup/Configuration/Hadoop_Clusters/Hortonworks</a></li>
+<li><a href="https://github.com/timveil/hive-jdbc-uber-jar" target="_blank" rel="noopener">https://github.com/timveil/hive-jdbc-uber-jar</a></li>
+</ol>
+</div><div class="tags"><a href="/tags/Kerberos/">Kerberos</a><a href="/tags/Kettle/">Kettle</a></div><div class="post-nav"><a class="pre" href="/2019/05/26/NiFi/NiFi教程/">NiFi教程</a><a class="next" href="/2019/02/18/Ranger/基于Ranger的二次开发/">基于Ranger的二次开发</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"><input type="hidden" name="sitesearch" value="https://marvinxw.github.io"></form></div><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"><input type="hidden" name="si" value="https://marvinxw.github.io"><input name="tn" type="hidden" value="bds"><input name="cl" type="hidden" value="3"><input name="ct" type="hidden" value="2097152"><input name="s" type="hidden" value="on"></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/bigdata/">bigdata</a><span class="category-list-count">5</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/ETL/" style="font-size: 15px;">ETL</a> <a href="/tags/Hive/" style="font-size: 15px;">Hive</a> <a href="/tags/Kerberos/" style="font-size: 15px;">Kerberos</a> <a href="/tags/Kettle/" style="font-size: 15px;">Kettle</a> <a href="/tags/Ranger/" style="font-size: 15px;">Ranger</a> <a href="/tags/NiFi/" style="font-size: 15px;">NiFi</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2019/06/17/Hive/Hive的执行过程/">Hive的执行过程</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/26/ETL/ETL/">ETL杂记</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/26/NiFi/NiFi教程/">NiFi教程</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/05/06/Kettle/开启Kerberos后Kettle连接Hive/">开启Kerberos后Kettle连接Hive</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/02/18/Ranger/基于Ranger的二次开发/">基于Ranger的二次开发</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2019 <a href="/." rel="nofollow">Marvin 博客.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
